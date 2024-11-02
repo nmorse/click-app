@@ -8,7 +8,10 @@
   <h1>Set Your Click Track Tempo</h1>
   <button id="tempoButton">Tap Tempo</button>
   <button id="pauseButton" disabled>Pause</button>
+  <button id="resetButton">Reset</button>
   <p id="status">Click the button 4 times to set the tempo.</p>
+  <p id="clickCount">Clicks: 0</p>
+  <p id="playCount">Sound Plays: 0</p> <!-- New display for sound play count -->
   
   <audio id="clickSound" src="click-sound.wav"></audio> <!-- Use the .wav file for the click sound -->
 
@@ -16,17 +19,47 @@
     let clickTimes = [];
     let intervalId;
     let isPlaying = false;
+    let soundPlayCount = 0; // Counter for how many times the sound has played
 
     const tempoButton = document.getElementById('tempoButton');
     const pauseButton = document.getElementById('pauseButton');
+    const resetButton = document.getElementById('resetButton');
     const statusText = document.getElementById('status');
+    const clickCountText = document.getElementById('clickCount');
+    const playCountText = document.getElementById('playCount'); // Display for sound play count
     const clickSound = document.getElementById('clickSound');
 
+    // Function to update the click count display
+    function updateClickCount() {
+      clickCountText.textContent = `Clicks: ${clickTimes.length}`;
+    }
+
+    // Function to update the sound play count display
+    function updatePlayCount() {
+      playCountText.textContent = `Sound Plays: ${soundPlayCount}`;
+    }
+
+    // Function to reset the app to its initial state
+    function resetApp() {
+      clearInterval(intervalId);  // Stop any ongoing click track
+      clickTimes = [];            // Clear the click times
+      soundPlayCount = 0;         // Reset sound play count
+      isPlaying = false;
+      pauseButton.disabled = true;
+      pauseButton.textContent = "Pause";
+      statusText.textContent = "Click the button 4 times to set the tempo.";
+      updateClickCount();         // Update the click count display
+      updatePlayCount();          // Reset the sound play count display
+    }
+
+    // Handle tempo button clicks
     tempoButton.addEventListener('click', () => {
       const now = Date.now();
 
       // Store the time of each click (up to 4 times)
       clickTimes.push(now);
+      updateClickCount(); // Update click count on screen
+
       if (clickTimes.length === 4) {
         // Calculate intervals between clicks
         const intervals = [
@@ -43,15 +76,19 @@
         intervalId = setInterval(() => {
           clickSound.currentTime = 0;
           clickSound.play();
+          soundPlayCount++; // Increment sound play count
+          updatePlayCount(); // Update the play count display
         }, avgInterval);
 
         isPlaying = true;
         pauseButton.disabled = false;
         statusText.textContent = `Click track set to ${Math.round(60000 / avgInterval)} BPM`;
         clickTimes = []; // Reset for next time
+        updateClickCount(); // Reset click count display
       }
     });
 
+    // Handle pause/resume button
     pauseButton.addEventListener('click', () => {
       if (isPlaying) {
         clearInterval(intervalId);  // Stop the click track
@@ -62,11 +99,16 @@
         intervalId = setInterval(() => {
           clickSound.currentTime = 0;
           clickSound.play();
+          soundPlayCount++; // Increment sound play count
+          updatePlayCount(); // Update the play count display
         }, 60000 / parseInt(statusText.textContent.match(/\d+/)[0])); // Use the last BPM from the status text
         pauseButton.textContent = "Pause";
         isPlaying = true;
       }
     });
+
+    // Handle reset button
+    resetButton.addEventListener('click', resetApp);
   </script>
 </body>
 </html>

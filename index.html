@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Click Track Tempo Setter</title>
+  <title>Click Track Tempo Setter with Instructions</title>
 </head>
 <body>
   <h1>Set Your Click Track Tempo</h1>
@@ -11,8 +11,9 @@
   <button id="resetButton">Reset</button>
   <p id="status">Click the button 4 times to set the tempo.</p>
   <p id="clickCount">Clicks: 0</p>
-  <p id="playCount">Sound Plays: 0</p> <!-- New display for sound play count -->
-  
+  <p id="playCount">Sound Plays: 0</p>
+  <p id="instruction">Instruction: None</p> <!-- Display for the current instruction -->
+
   <audio id="clickSound" src="click-sound.wav"></audio> <!-- Use the .wav file for the click sound -->
 
   <script>
@@ -26,8 +27,17 @@
     const resetButton = document.getElementById('resetButton');
     const statusText = document.getElementById('status');
     const clickCountText = document.getElementById('clickCount');
-    const playCountText = document.getElementById('playCount'); // Display for sound play count
+    const playCountText = document.getElementById('playCount');
+    const instructionText = document.getElementById('instruction'); // Display for current instruction
     const clickSound = document.getElementById('clickSound');
+
+    // Instruction array and total number of measures
+    const instructions = [
+      {measure: 0, instruct: 'First Corners, Right-Hand Turn'},
+      {measure: 8, instruct: 'Second Corners, Left-Hand Turn'}
+      // Add more instructions as needed
+    ];
+    const totalMeasures = 16; // Example total measures for repeating sequence
 
     // Function to update the click count display
     function updateClickCount() {
@@ -37,6 +47,13 @@
     // Function to update the sound play count display
     function updatePlayCount() {
       playCountText.textContent = `Sound Plays: ${soundPlayCount}`;
+    }
+
+    // Function to update the instruction based on soundPlayCount
+    function updateInstruction() {
+      const currentMeasure = soundPlayCount % totalMeasures;
+      const instruction = instructions.find(instr => instr.measure === currentMeasure);
+      instructionText.textContent = `Instruction: ${instruction ? instruction.instruct : "None"}`;
     }
 
     // Function to reset the app to its initial state
@@ -50,6 +67,7 @@
       statusText.textContent = "Click the button 4 times to set the tempo.";
       updateClickCount();         // Update the click count display
       updatePlayCount();          // Reset the sound play count display
+      instructionText.textContent = "Instruction: None"; // Reset instruction display
     }
 
     // Handle tempo button clicks
@@ -78,6 +96,7 @@
           clickSound.play();
           soundPlayCount++; // Increment sound play count
           updatePlayCount(); // Update the play count display
+          updateInstruction(); // Check and update instruction if conditions match
         }, avgInterval);
 
         isPlaying = true;
@@ -101,6 +120,7 @@
           clickSound.play();
           soundPlayCount++; // Increment sound play count
           updatePlayCount(); // Update the play count display
+          updateInstruction(); // Check and update instruction if conditions match
         }, 60000 / parseInt(statusText.textContent.match(/\d+/)[0])); // Use the last BPM from the status text
         pauseButton.textContent = "Pause";
         isPlaying = true;

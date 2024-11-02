@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Click Track Tempo Setter</title>
+</head>
+<body>
+  <h1>Set Your Click Track Tempo</h1>
+  <button id="tempoButton">Tap Tempo</button>
+  <p id="status">Click the button 4 times to set the tempo.</p>
+  
+  <audio id="clickSound" src="click-sound.wav"></audio> <!-- Add a short click sound here -->
+  
+  <script>
+    let clickTimes = [];
+    let intervalId;
+
+    const tempoButton = document.getElementById('tempoButton');
+    const statusText = document.getElementById('status');
+    const clickSound = document.getElementById('clickSound');
+
+    tempoButton.addEventListener('click', () => {
+      const now = Date.now();
+
+      // Store the time of each click (up to 4 times)
+      clickTimes.push(now);
+      if (clickTimes.length === 4) {
+        // Calculate intervals between clicks
+        const intervals = [
+          clickTimes[1] - clickTimes[0],
+          clickTimes[2] - clickTimes[1],
+          clickTimes[3] - clickTimes[2]
+        ];
+
+        // Find the average interval
+        const avgInterval = intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
+
+        // Set up click track based on the average interval
+        if (intervalId) clearInterval(intervalId); // Stop previous click track if running
+        intervalId = setInterval(() => {
+          clickSound.currentTime = 0;
+          clickSound.play();
+        }, avgInterval);
+
+        statusText.textContent = `Click track set to ${Math.round(60000 / avgInterval)} BPM`;
+        clickTimes = []; // Reset for next time
+      }
+    });
+  </script>
+</body>
+</html>
+

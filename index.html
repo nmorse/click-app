@@ -33,8 +33,8 @@
 
     // Instruction array and total number of measures
     const instructions = [
-      {measure: 0, instruct: 'First Corners, Right-Hand Turn'},
-      {measure: 8, instruct: 'Second Corners, Left-Hand Turn'}
+      {show: 0, hide: 4, instruct: 'First Corners, Right-Hand Turn'},
+      {show: 8, hide: 12, instruct: 'Second Corners, Left-Hand Turn'}
       // Add more instructions as needed
     ];
     const totalMeasures = 16; // Example total measures for repeating sequence
@@ -52,7 +52,7 @@
     // Function to update the instruction based on soundPlayCount
     function updateInstruction() {
       const currentMeasure = soundPlayCount % totalMeasures;
-      const instruction = instructions.find(instr => instr.measure === currentMeasure);
+      const instruction = instructions.find(instr => instr.show <= currentMeasure && instr.hide > currentMeasure);
       instructionText.textContent = `Instruction: ${instruction ? instruction.instruct : "None"}`;
     }
 
